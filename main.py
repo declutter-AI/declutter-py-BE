@@ -2,12 +2,16 @@ from fastapi import FastAPI, HTTPException
 from typing import Dict
 from services.task_extraction import TaskExtractionService
 from schemas.task import TaskExtractionRequest, TaskExtractionResponse
+from services.gmail_service import router as gmail_router
+
 
 app = FastAPI(
     title="Declutter API",
     description="Backend API for the Declutter application",
     version="1.0.0"
 )
+
+app.include_router(gmail_router, prefix="/gmail", tags=["gmail"])
 
 @app.get("/")
 async def root() -> Dict[str, str]:
