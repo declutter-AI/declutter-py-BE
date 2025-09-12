@@ -8,8 +8,8 @@ load_dotenv()
 
 # Configure OpenAI
 client = OpenAI(
-    # This is the default and can be omitted
-    api_key=os.environ.get("OPENAI_API_KEY"),
+  base_url = "https://integrate.api.nvidia.com/v1",
+  api_key = os.environ.get("NVIDIA_NIM_API_KEY")
 )
 
 class TaskExtractionService:
@@ -26,7 +26,7 @@ class TaskExtractionService:
         """
         try:
             response =  client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="deepseek-ai/deepseek-v3.1",
                 messages=[
                     {
                         "role": "system",
@@ -37,7 +37,10 @@ class TaskExtractionService:
                         "content": f"Extract actionable tasks from this text: {context}"
                     }
                 ],
-                temperature=0.7,
+                temperature=0.2,
+                top_p=0.7,
+                max_tokens=8192,
+                extra_body={"chat_template_kwargs": {"thinking":True}},
             )
             
             # Extract the content from the response
