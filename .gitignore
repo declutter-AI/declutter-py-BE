@@ -208,3 +208,6 @@ __marimo__/
 
 ./models/*
 models/*
+firebase-adminsdk.json
+google-oauth.json
+

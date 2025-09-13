@@ -4,6 +4,8 @@ from services.task_extraction import TaskExtractionService
 from services.email_classification import EmailClassificationService
 from schemas.task import TaskExtractionRequest, TaskExtractionResponse
 from schemas.email_classification import TrainingResponse, PredictionRequest, PredictionResponse
+from services.gmail_service import router as gmail_router
+
 
 app = FastAPI(
     title="Declutter API",
@@ -13,6 +15,7 @@ app = FastAPI(
 
 # Initialize the email classification service
 email_classifier = EmailClassificationService()
+app.include_router(gmail_router, prefix="/gmail", tags=["gmail"])
 
 @app.get("/")
 async def root() -> Dict[str, str]:
