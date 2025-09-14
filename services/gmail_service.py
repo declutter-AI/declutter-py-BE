@@ -155,7 +155,6 @@ def read_emails_history(user_id: str = None, days: int = 30, max_results: int = 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-import datetime
 
 def fetch_emails_in_date_range(service, days: int = 30, max_results: int = 100):
     """
@@ -183,12 +182,37 @@ def fetch_emails_in_date_range(service, days: int = 30, max_results: int = 100):
         subject = next((h["value"] for h in headers if h["name"] == "Subject"), None)
         from_email = next((h["value"] for h in headers if h["name"] == "From"), None)
 
-        snippet = msg_data.get("snippet", "")
+        body = ""
+        payload = msg_data.get("payload", {})
+
+        def get_body(payload):
+            if "parts" in payload:
+                for part in payload["parts"]:
+                    if part["mimeType"] == "text/plain":
+                        data = part["body"].get("data")
+                        if data:
+                            return base64.urlsafe_b64decode(data).decode("utf-8")
+                    elif part["mimeType"] == "text/html":
+                        data = part["body"].get("data")
+                        if data:
+                            return base64.urlsafe_b64decode(data).decode("utf-8")
+                    else:
+                        result = get_body(part)
+                        if result:
+                            return result
+            else:
+                data = payload.get("body", {}).get("data")
+                if data:
+                    return base64.urlsafe_b64decode(data).decode("utf-8")
+            return None
+
+        body = get_body(payload) or ""
+
         email_list.append({
             "id": msg["id"],
             "from": from_email,
             "subject": subject,
-            "snippet": snippet
+            "body": body
         })
 
     return email_list
